@@ -1,6 +1,5 @@
-package main
+package shortFunc
 
-import "fmt"
 import "bytes"
 
 func reverse(s string) string {
@@ -11,7 +10,7 @@ func reverse(s string) string {
 	return string(r)
 }
 
-func shortUrl(url string, length int) string {
+func ShortUrl(url string, length int) string {
 	hash_map := "abcdefghijklmnopqrstuvwxyz1234567890"
 	var buffer bytes.Buffer
 	string_length := len(url)
@@ -26,9 +25,4 @@ func shortUrl(url string, length int) string {
 		buffer.WriteString(string(hash_map[int(int(url[i]%32)+i)%32]))
 	}
 	return buffer.String()
-}
-
-func main() {
-	fmt.Println(shortUrl("https://www.geeksforgeekzs.org/how-to-design-a-tiny-url-or-url-shortener/", 10))
-	return
 }
