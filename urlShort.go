@@ -11,16 +11,24 @@ func reverse(s string) string {
 	return string(r)
 }
 
-func shortUrl(url string) string {
+func shortUrl(url string, length int) string {
 	hash_map := "abcdefghijklmnopqrstuvwxyz1234567890"
 	var buffer bytes.Buffer
-	for i := 0; i < len(hash_map); i++ {
-		buffer.WriteString(string(hash_map[int(url[i])%32]))
+	string_length := len(url)
+	var step int = 1
+	if string_length > length {
+		step = string_length / length
+	} else {
+		step = 1
+	}
+
+	for i := 0; i < string_length; i = i + step {
+		buffer.WriteString(string(hash_map[int(int(url[i]%32)+i)%32]))
 	}
 	return buffer.String()
 }
 
 func main() {
-	fmt.Println(shortUrl("https://www.geeksforgeekzs.org/how-to-design-a-tiny-url-or-url-shortener/"))
+	fmt.Println(shortUrl("https://www.geeksforgeekzs.org/how-to-design-a-tiny-url-or-url-shortener/", 10))
 	return
 }
