@@ -15,6 +15,10 @@ type shortUrlResp struct {
 	ShortUrl string `json:"shortUrl"`
 }
 
+const (
+	BadUrl = http.StatusBadRequest
+)
+
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/shortUrl", shortUrl).Methods("POST")
@@ -34,5 +38,25 @@ func shortUrl(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	jsonEncoder := json.NewEncoder(w)
-	jsonEncoder.Encode(shortUrlResp{ShortUrl: shortFunc.ShortUrl(t.LongUrl, 10)})
+	if good := validate(t.LongUrl); good {
+		jsonEncoder.Encode(shortUrlResp{ShortUrl: shortFunc.ShortUrl(t.LongUrl, 10)})
+	} else {
+		w.WriteHeader(BadUrl)
+		jsonEncoder.Encode(shortUrlResp{ShortUrl: "invalid url"})
+	}
+}
+func validate(url string) bool {
+	httpClient := &http.Client{}
+	httpReq, err := http.NewRequest("HEAD", url, nil)
+	if err != nil {
+		return false
+	}
+	resp, err := httpClient.Do(httpReq)
+	if err != nil {
+		return false
+	}
+	if resp.StatusCode > 399 || resp.StatusCode < 200 {
+		return false
+	}
+	return true
 }
