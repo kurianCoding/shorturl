@@ -2,14 +2,17 @@ package shortFunc
 
 import (
 	"bytes"
-	"fmt"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
 )
 
+var (
+	pool *redis.Pool
+)
+
 func init() {
-	pool := &redis.Pool{
+	pool = &redis.Pool{
 		MaxIdle:     5,
 		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
@@ -17,6 +20,7 @@ func init() {
 			if err != nil {
 				return nil, err
 			}
+			return c, nil
 		},
 	}
 }
@@ -35,7 +39,7 @@ func ShortUrl(url string, length int) string {
 	if exists {
 		return shortUrl
 	}
-	shortUrl := createShortUrl(url, length)
+	shortUrl = createShortUrl(url, length)
 	c.Do("SET", url, shortUrl)
 	return shortUrl
 }
@@ -57,7 +61,12 @@ func createShortUrl(url string, length int) string {
 	return buffer.String()
 }
 func checkIfExists(c redis.Conn, url string) (bool, string) {
-	reply, err := c.Do("EXISTS", url)
-	fmt.Println(reply)
-	return false, ""
+	reply, err := redis.Bytes(c.Do("GET", url))
+	if err != nil {
+		panic(err)
+	}
+	if string(reply) == "" {
+		return false, ""
+	}
+	return true, string(reply)
 }
