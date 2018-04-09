@@ -39,7 +39,7 @@ func shortUrl(w http.ResponseWriter, r *http.Request) {
 	}
 	jsonEncoder := json.NewEncoder(w)
 	if good := validate(t.LongUrl); good {
-		jsonEncoder.Encode(shortUrlResp{ShortUrl: shortFunc.ShortUrl(t.LongUrl, 10)})
+		jsonEncoder.Encode(shortUrlResp{ShortUrl: "http://" + shortFunc.ShortUrl(t.LongUrl, 10) + ".me"})
 	} else {
 		w.WriteHeader(BadUrl)
 		jsonEncoder.Encode(shortUrlResp{ShortUrl: "invalid url"})
